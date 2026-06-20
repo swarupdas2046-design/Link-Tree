@@ -11,6 +11,10 @@ router.post("/:linkId/click", clickRateLimiter, linkController.recordClick)
 
 router.get("/:linkId/analytics", authMiddleware, linkController.getLastSevenDaysAnalytics)
 
+router.get("/deleted", authMiddleware, linkController.getDeletedLinks)
+
+router.delete("/:linkId", authMiddleware, linkController.softDeleteLink)
+
 router.get("/:username", linkController.getLinksByUsername)
 
 export default router;

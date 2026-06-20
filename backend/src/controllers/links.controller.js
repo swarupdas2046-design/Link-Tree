@@ -44,7 +44,10 @@ export const getLinksByUsername = async (req, res) => {
         });
     }
 
-    const links = await linkModel.find({ user: user._id });
+    const links = await linkModel.find({
+        user: user._id,
+        isDeleted: false,
+    });
 
     return res.status(200).json({
         message: 'Links retrieved successfully',
@@ -57,7 +60,10 @@ export const recordClick = async (req, res) => {
     const { linkId } = req.params;
 
     try {
-        const link = await linkModel.findById(linkId);
+        const link = await linkModel.findOne({
+            _id: linkId,
+            isDeleted: false,
+        });
 
         if (!link) {
             return res.status(404).json({
@@ -95,6 +101,7 @@ export const getLastSevenDaysAnalytics = async (req, res) => {
         const link = await linkModel.findOne({
             _id: linkId,
             user: user.id,
+            isDeleted: false,
         });
 
         if (!link) {
@@ -165,6 +172,71 @@ export const getLastSevenDaysAnalytics = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: error.message || 'Failed to retrieve click analytics',
+        });
+    }
+}
+
+export const softDeleteLink = async (req, res) => {
+
+    const { linkId } = req.params;
+    const user = req.user;
+
+    if (!mongoose.isValidObjectId(linkId)) {
+        return res.status(400).json({
+            message: 'Invalid link ID',
+        });
+    }
+
+    try {
+        const link = await linkModel.findOneAndUpdate(
+            {
+                _id: linkId,
+                user: user.id,
+                isDeleted: false,
+            },
+            {
+                isDeleted: true,
+                deletedAt: new Date(),
+            },
+            {
+                new: true,
+            },
+        );
+
+        if (!link) {
+            return res.status(404).json({
+                message: 'Active link not found',
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Link deleted successfully',
+            link,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || 'Failed to delete link',
+        });
+    }
+}
+
+export const getDeletedLinks = async (req, res) => {
+
+    const user = req.user;
+
+    try {
+        const links = await linkModel.find({
+            user: user.id,
+            isDeleted: true,
+        }).sort({ deletedAt: -1 });
+
+        return res.status(200).json({
+            message: 'Deleted links retrieved successfully',
+            links,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || 'Failed to retrieve deleted links',
         });
     }
 }
