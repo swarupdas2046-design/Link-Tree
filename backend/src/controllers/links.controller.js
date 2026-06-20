@@ -240,3 +240,43 @@ export const getDeletedLinks = async (req, res) => {
         });
     }
 }
+
+export const purgeLink = async (req, res) => {
+
+    const { linkId } = req.params;
+    const user = req.user;
+
+    if (!mongoose.isValidObjectId(linkId)) {
+        return res.status(400).json({
+            message: 'Invalid link ID',
+        });
+    }
+
+    try {
+        const link = await linkModel.findOne({
+            _id: linkId,
+            user: user.id,
+            isDeleted: true,
+        });
+
+        if (!link) {
+            return res.status(404).json({
+                message: 'Deleted link not found',
+            });
+        }
+
+        await clickModel.deleteMany({
+            link: link._id,
+        });
+
+        await link.deleteOne();
+
+        return res.status(200).json({
+            message: 'Link permanently deleted successfully',
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || 'Failed to permanently delete link',
+        });
+    }
+}

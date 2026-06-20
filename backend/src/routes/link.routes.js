@@ -13,6 +13,8 @@ router.get("/:linkId/analytics", authMiddleware, linkController.getLastSevenDays
 
 router.get("/deleted", authMiddleware, linkController.getDeletedLinks)
 
+router.delete("/:linkId/purge", authMiddleware, linkController.purgeLink)
+
 router.delete("/:linkId", authMiddleware, linkController.softDeleteLink)
 
 router.get("/:username", linkController.getLinksByUsername)
