@@ -7,15 +7,19 @@ const router = Router();
 
 router.post("/", authMiddleware, linkController.createLink)
 
-router.post("/:linkId/click", clickRateLimiter, linkController.recordClick)
-
-router.get("/:linkId/analytics", authMiddleware, linkController.getLastSevenDaysAnalytics)
+router.get("/me",authMiddleware,linkController.getMyLinks)
 
 router.get("/deleted", authMiddleware, linkController.getDeletedLinks)
+
+router.patch("/:linkId/restore",authMiddleware,linkController.restoreLink)
 
 router.delete("/:linkId/purge", authMiddleware, linkController.purgeLink)
 
 router.delete("/:linkId", authMiddleware, linkController.softDeleteLink)
+
+router.post("/:linkId/click", clickRateLimiter, linkController.recordClick)
+
+router.get("/:linkId/analytics", authMiddleware, linkController.getLastSevenDaysAnalytics)
 
 router.get("/:username", linkController.getLinksByUsername)
 

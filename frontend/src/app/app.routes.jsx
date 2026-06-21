@@ -7,6 +7,7 @@ import Home from '../features/home/pages/Home.jsx'
 import Trash from '../features/trash/pages/Trash.jsx'
 import ClaimUsername from '../features/username/pages/ClaimUsername.jsx'
 import PagePlaceholder from '../shared/components/PagePlaceholder.jsx'
+import ProtectedRoute from '../shared/components/ProtectedRoute.jsx'
 
 const router = createBrowserRouter([
   {
@@ -28,19 +29,35 @@ const router = createBrowserRouter([
   },
   {
     path: '/dashboard',
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/dashboard/links/:linkId/analytics',
-    element: <Analytics />,
+    element: (
+      <ProtectedRoute>
+        <Analytics />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/dashboard/trash',
-    element: <Trash />,
+    element: (
+      <ProtectedRoute>
+        <Trash />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/settings/username',
-    element: <ClaimUsername />,
+    element: (
+      <ProtectedRoute>
+        <ClaimUsername />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/:username',

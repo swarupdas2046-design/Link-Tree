@@ -55,6 +55,32 @@ export const getLinksByUsername = async (req, res) => {
     });
 }
 
+export const getMyLinks = async (req, res) => {
+
+    const user = req.user;
+
+    try {
+
+        const links = await linkModel.find({
+            user: user.id,
+            isDeleted: false,
+        }).sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            message: 'Links retrieved successfully',
+            links,
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: error.message || 'Failed to retrieve links',
+        });
+
+    }
+
+}
+
 export const recordClick = async (req, res) => {
 
     const { linkId } = req.params;
@@ -280,3 +306,64 @@ export const purgeLink = async (req, res) => {
         });
     }
 }
+
+export const restoreLink = async (req, res) => {
+
+    const { linkId } = req.params;
+    const user = req.user;
+
+    if (!mongoose.isValidObjectId(linkId)) {
+        return res.status(400).json({
+            message: 'Invalid link ID',
+        });
+    }
+
+    try {
+
+        const link = await linkModel.findOneAndUpdate(
+
+            {
+                _id: linkId,
+                user: user.id,
+                isDeleted: true,
+            },
+
+            {
+                isDeleted: false,
+                deletedAt: null,
+            },
+
+            {
+                new: true,
+            }
+
+        );
+
+        if (!link) {
+
+            return res.status(404).json({
+                message: 'Deleted link not found',
+            });
+
+        }
+
+        return res.status(200).json({
+
+            message: 'Link restored successfully',
+
+            link,
+
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+
+            message: error.message || 'Failed to restore link',
+
+        });
+
+    }
+
+}
+
