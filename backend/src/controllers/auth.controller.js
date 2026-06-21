@@ -151,3 +151,35 @@ export const claimUsername = async (req, res) => {
         });
     }
 };
+
+export const getCurrentUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found',
+            });
+        }
+
+        return res.status(200).json({
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || 'Failed to retrieve current user',
+        });
+    }
+};
+
+export const logoutUser = (req, res) => {
+    res.clearCookie('token');
+
+    return res.status(200).json({
+        message: 'Logout successful',
+    });
+};

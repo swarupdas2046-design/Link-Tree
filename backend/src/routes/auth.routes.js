@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { claimUsername, loginUser, registerUser } from '../controllers/auth.controller.js';
+import { claimUsername, getCurrentUser, loginUser, logoutUser, registerUser } from '../controllers/auth.controller.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import validateRequest from '../middlewares/validateRequest.js';
 import { loginValidation, registerValidation } from '../validators/auth.validators.js';
@@ -9,6 +9,8 @@ const router = Router();
 
 router.post('/register', usernameValidation, registerValidation, validateRequest, registerUser);
 router.post('/login', loginValidation, validateRequest, loginUser);
+router.post('/logout', authMiddleware, logoutUser);
+router.get('/me', authMiddleware, getCurrentUser);
 router.patch('/claim-username', authMiddleware, usernameValidation, validateRequest, claimUsername);
 
 export default router;
